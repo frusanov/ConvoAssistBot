@@ -29,14 +29,12 @@ async function transcribeVoice(url: string) {
       input: {
         audio: url,
         model: "large-v3",
-        language: "ru",
         translate: false,
         temperature: 0,
         transcription: "plain text",
         suppress_tokens: "-1",
         logprob_threshold: -1,
         no_speech_threshold: 0.6,
-        condition_on_previous_text: true,
         compression_ratio_threshold: 2.4,
         temperature_increment_on_fallback: 0.2
       }
@@ -55,6 +53,7 @@ bot.use(async (ctx, next) => {
 
     // Ignore old messages
     if (ctx.message?.date && (new Date().getTime() / 1000 - ctx.message.date) > 60) {
+      console.log('Ignoring old message');
       return next();
     }
 

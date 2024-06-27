@@ -1,11 +1,11 @@
 FROM oven/bun:1
 
+RUN mkdir /app
+
 WORKDIR /app
 
 COPY ./ ./
 
-RUN bun install --frozen-lockfile --production
-
-ENV NODE_ENV=production
+RUN bun install
 
 ENTRYPOINT [ "bun", "run", "index.ts" ]

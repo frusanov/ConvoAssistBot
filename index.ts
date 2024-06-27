@@ -53,6 +53,11 @@ bot.use(async (ctx, next) => {
 
     const chat = ctx.chat;
 
+    // Ignore old messages
+    if (ctx.message?.date && (new Date().getTime() / 1000 - ctx.message.date) > 60) {
+      return next();
+    }
+
     if (!idsCombined.includes(chat?.id as number)) {
       ctx.reply('You are not allowed to use this bot');
       return next();
@@ -74,7 +79,7 @@ bot.use(async (ctx, next) => {
     if ((ctx.message as any)?.video_note as HasFileId) {
       const reply = await ctx.reply('Transcribing video note...', { reply_parameters: { message_id: ctx.message!.message_id } });
 
-      const url = await ctx.telegram.getFileLink((ctx.message as any).voice.file_id)
+      const url = await ctx.telegram.getFileLink((ctx.message as any).video_note.file_id)
       const result = await transcribeVoice(url.href);
 
       ctx.telegram.editMessageText(reply.chat.id, reply.message_id, undefined, result.transcription);  

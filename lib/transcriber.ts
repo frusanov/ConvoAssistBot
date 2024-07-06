@@ -1,8 +1,4 @@
-import Replicate from "replicate";
-
-const replicate = new Replicate({
-  auth: process.env.REPLICATE_API_TOKEN,
-});
+import { replicate } from "./shared/replicate";
 
 export async function transcriber(url: string) {
   const output = await replicate.run(

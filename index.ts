@@ -2,6 +2,7 @@ import { Telegraf } from 'telegraf';
 import { transcriber } from './lib/transcriber';
 import { refiner } from './lib/refiner';
 import type { MessageEntity } from 'telegraf/types';
+import { videoNoteTranscriber } from './lib/video-note-transcriber';
 
 if (!process.env.BOT_TOKEN) throw new Error('BOT_TOKEN must be provided!');
 if (!process.env.ADMIN_USERS) throw new Error('ADMIN_USERS must be provided!');
@@ -45,14 +46,14 @@ bot.use(async (ctx, next) => {
     }
 
     if ((ctx.message as any)?.video_note as HasFileId) {
-      replyWithTranscription('Transcribing video note...', (ctx.message as any).video_note.file_id);
+      replyWithTranscription('Transcribing video note...', (ctx.message as any).video_note.file_id, true);
     }
 
-    async function replyWithTranscription(initialMessage: string, fileId: string) {
+    async function replyWithTranscription(initialMessage: string, fileId: string, isVideoNote = false) {
       const reply = await ctx.reply(initialMessage, { reply_parameters: { message_id: ctx.message!.message_id } });
 
       const url = await ctx.telegram.getFileLink(fileId)
-      const result = await transcriber(url.href);
+      const result = isVideoNote ? await videoNoteTranscriber(url.href) :  await transcriber(url.href);
 
       ctx.telegram.editMessageText(reply.chat.id, reply.message_id, undefined, result.transcription); 
 

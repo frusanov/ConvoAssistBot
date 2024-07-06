@@ -39,7 +39,10 @@ export async function refiner(input: string): Promise<string> {
   const transcriptionIndex = result.indexOf(transcriptionHeader);
   const summaryIndex = result.indexOf(summaryHeader);
   
-  const transcription = result.slice(transcriptionIndex + transcriptionHeader.length, summaryIndex).trim();
+  const transcription = result.slice(
+    transcriptionIndex + transcriptionHeader.length,
+    summaryIndex === -1 ? undefined : summaryIndex
+  ).trim();
   
   let summary = '';
 

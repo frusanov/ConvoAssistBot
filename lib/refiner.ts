@@ -10,7 +10,9 @@ If text more then one paragraph you also need to provide short summary of correc
 
 You MUST answer ONLY with corrected text and add summary only on cases if transcribed text is more then ONE paragraph. Summary must be from SAME PERSPECTIVE as original text.
 
-Main text must be marked with TRANSCRIPTION: header and summary, if it is present with SUMMARY: header.`
+Main text must be marked with TRANSCRIPTION: header and summary, if it is present with SUMMARY: header.
+
+DO NOT use markdown formatting for output.`
 
 export async function refiner(input: string): Promise<string> {
   const chatCompletion = await openai.chat.completions.create({

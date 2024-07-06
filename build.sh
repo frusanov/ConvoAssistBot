@@ -1,2 +1,2 @@
 #!/bin/sh
-docker build -t convo-assist .
+docker build -t convo-assist . --no-cache

@@ -1,9 +1,7 @@
 import { Telegraf } from 'telegraf';
-import Replicate from "replicate";
-
-const replicate = new Replicate({
-  auth: process.env.REPLICATE_API_TOKEN,
-});
+import { transcriber } from './lib/transcriber';
+import { refiner } from './lib/refiner';
+import type { MessageEntity } from 'telegraf/types';
 
 if (!process.env.BOT_TOKEN) throw new Error('BOT_TOKEN must be provided!');
 if (!process.env.ADMIN_USERS) throw new Error('ADMIN_USERS must be provided!');
@@ -21,30 +19,6 @@ const idsCombined = [...adminUsers, ...allowedGroups];
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
 bot.start((ctx) => ctx.reply('well cum'));
-
-async function transcribeVoice(url: string) {
-  const output = await replicate.run(
-    "openai/whisper:4d50797290df275329f202e48c76360b3f22b08d28c196cbc54600319435f8d2",
-    {
-      input: {
-        audio: url,
-        model: "large-v3",
-        translate: false,
-        temperature: 0,
-        transcription: "plain text",
-        suppress_tokens: "-1",
-        logprob_threshold: -1,
-        no_speech_threshold: 0.6,
-        compression_ratio_threshold: 2.4,
-        temperature_increment_on_fallback: 0.2
-      }
-    }
-  );
-
-  return output as {
-    transcription: string;
-  };
-}
 
 bot.use(async (ctx, next) => {
     const start = new Date()
@@ -67,21 +41,44 @@ bot.use(async (ctx, next) => {
     }
 
     if ((ctx.message as any)?.voice as HasFileId) {
-      const reply = await ctx.reply('Transcribing voice message...', { reply_parameters: { message_id: ctx.message!.message_id } });
-
-      const url = await ctx.telegram.getFileLink((ctx.message as any).voice.file_id)
-      const result = await transcribeVoice(url.href);
-
-      ctx.telegram.editMessageText(reply.chat.id, reply.message_id, undefined, result.transcription);      
+      replyWithTranscription('Transcribing voice message...', (ctx.message as any).voice.file_id);     
     }
 
     if ((ctx.message as any)?.video_note as HasFileId) {
-      const reply = await ctx.reply('Transcribing video note...', { reply_parameters: { message_id: ctx.message!.message_id } });
+      replyWithTranscription('Transcribing video note...', (ctx.message as any).video_note.file_id);
+    }
 
-      const url = await ctx.telegram.getFileLink((ctx.message as any).video_note.file_id)
-      const result = await transcribeVoice(url.href);
+    async function replyWithTranscription(initialMessage: string, fileId: string) {
+      const reply = await ctx.reply(initialMessage, { reply_parameters: { message_id: ctx.message!.message_id } });
 
-      ctx.telegram.editMessageText(reply.chat.id, reply.message_id, undefined, result.transcription);  
+      const url = await ctx.telegram.getFileLink(fileId)
+      const result = await transcriber(url.href);
+
+      ctx.telegram.editMessageText(reply.chat.id, reply.message_id, undefined, result.transcription); 
+
+      const refined = await refiner(result.transcription);
+
+      const transcriptionHeader = 'Transcription:';
+      const summaryHeader = 'Summary:';
+
+      const transcriptionIndex = refined.indexOf(transcriptionHeader);
+      const summaryIndex = refined.indexOf(summaryHeader);
+
+      const transcriptionHeaderEntities: Array<MessageEntity> = [
+        { type: 'bold', offset: transcriptionIndex, length: transcriptionHeader.length },
+        { type: 'underline', offset: transcriptionIndex, length: transcriptionHeader.length }
+      ];
+      const summaryHeaderEntities: Array<MessageEntity> = summaryIndex !== -1 ? [
+        { type: 'bold', offset: summaryIndex, length: summaryHeader.length },
+        { type: 'underline', offset: summaryIndex, length: summaryHeader.length }
+      ] : [];
+
+      ctx.telegram.editMessageText(reply.chat.id, reply.message_id, undefined, refined, {
+        entities: [
+          ...transcriptionHeaderEntities,
+          ...summaryHeaderEntities
+        ]
+      }); 
     }
 
     return next().then(() => {

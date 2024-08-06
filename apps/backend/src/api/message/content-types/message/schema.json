@@ -1,0 +1,46 @@
+{
+  "kind": "collectionType",
+  "collectionName": "messages",
+  "info": {
+    "singularName": "message",
+    "pluralName": "messages",
+    "displayName": "Message",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "tg_id": {
+      "required": true,
+      "unique": true,
+      "type": "biginteger"
+    },
+    "text": {
+      "type": "text"
+    },
+    "media": {
+      "type": "media",
+      "multiple": true,
+      "required": false,
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ]
+    },
+    "kind": {
+      "type": "enumeration",
+      "enum": [
+        "text",
+        "photo",
+        "video",
+        "voice",
+        "video_note",
+        "poll"
+      ]
+    }
+  }
+}

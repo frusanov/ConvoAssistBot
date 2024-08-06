@@ -1,0 +1,32 @@
+{
+  "kind": "collectionType",
+  "collectionName": "announcement_messages",
+  "info": {
+    "singularName": "announcement-message",
+    "pluralName": "announcement-messages",
+    "displayName": "AnnouncementMessage",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "message": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::message.message"
+    },
+    "chat": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::chat.chat"
+    },
+    "announcement": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::announcement.announcement",
+      "mappedBy": "announcement_messages"
+    }
+  }
+}

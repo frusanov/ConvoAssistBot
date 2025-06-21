@@ -1,0 +1,7 @@
+services:
+  convo-assist:
+    image: convo-assist
+    build: .
+    volumes:
+      - ./.env:/app/.env
+    restart: always

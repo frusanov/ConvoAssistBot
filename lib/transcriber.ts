@@ -1,4 +1,3 @@
-import { fetch } from "bun";
 import { openai } from "./shared/openai";
 
 export async function transcriber(url: string) {

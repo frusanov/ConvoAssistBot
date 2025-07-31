@@ -5,8 +5,6 @@ export const settingsSceneMiddleware: MiddlewareFn<Context> = async (
   ctx,
   next,
 ) => {
-  console.log(ctx.isSettingsCommand, ctx.systems.scene.data.scene);
-
   if (ctx.isSettingsCommand && ctx.systems.scene.data.scene === "default") {
     await ctx.systems.scene.setScene("settings-main");
   }

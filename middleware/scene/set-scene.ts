@@ -21,6 +21,4 @@ export async function setScene<TContext extends Context = Context>(
     .returning();
 
   this.systems.scene.data = result;
-
-  console.log("setScene", this.systems.scene.data);
 }

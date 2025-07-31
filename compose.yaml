@@ -4,4 +4,9 @@ services:
     build: .
     volumes:
       - ./.env:/app/.env
+      - convo-assist_db:/app/db
     restart: always
+
+volumes:
+  convo-assist_db:
+    external: true

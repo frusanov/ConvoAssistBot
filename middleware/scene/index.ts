@@ -27,7 +27,6 @@ export const sceneMiddleware: MiddlewareFn<Context> = async (ctx, next) => {
     .some((item) => item.type === "bot_command" && item.fragment === "/reset");
 
   if (isResetCommand) {
-    console.log("isResetCommand", isResetCommand);
     await ctx.systems.scene.resetScene();
   }
 

@@ -1,5 +1,4 @@
-import { Composer, Markup, Telegraf } from "telegraf";
-import { message, callbackQuery } from "telegraf/filters";
+import { Telegraf } from "telegraf";
 import { responseTimeMiddleware } from "./middleware/response-time";
 import { idGuardMiddleware } from "./middleware/id-guard";
 import { ignoreOldMessagesMiddleware } from "./middleware/ignore-old-messages";
@@ -9,6 +8,8 @@ import { sceneMiddleware } from "./middleware/scene";
 import { chatMiddleware } from "./middleware/chat";
 import { callbackQueryMiddleware } from "./middleware/callback-query";
 import { historyMiddleware } from "./middleware/history";
+import { summaryMiddleware } from "./middleware/summary";
+import { commandMiddleware } from "./middleware/command";
 
 export interface SystemsContext {}
 
@@ -29,9 +30,11 @@ bot.use(responseTimeMiddleware);
 bot.use(idGuardMiddleware);
 bot.use(callbackQueryMiddleware);
 bot.use(chatMiddleware);
+bot.use(commandMiddleware);
 bot.use(historyMiddleware);
 bot.use(sceneMiddleware);
 bot.use(...settingsMiddlewares);
+bot.use(summaryMiddleware);
 bot.use(transcribeMiddleware);
 
 bot.launch();

@@ -12,13 +12,9 @@ export const mainSettingsMiddleware: MiddlewareFn<Context> = async (
   ctx,
   next,
 ) => {
-  const isSettingsCommand = ctx
-    .entities("bot_command")
-    .some((item) => item.fragment === "/settings");
+  const isSettingsCommand = ctx.systems.command?.name === "settings";
 
   ctx.isSettingsCommand = isSettingsCommand;
-
-  console.log({ isSettingsCommand });
 
   return next();
 };

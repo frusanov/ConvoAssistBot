@@ -2,7 +2,7 @@ import type { Context, MiddlewareFn } from "telegraf";
 import { message } from "telegraf/filters";
 import { transcriber } from "../lib/transcriber";
 import { refiner } from "../lib/refiner";
-import type { MessageEntity } from "telegraf/types";
+import type { Message, MessageEntity } from "telegraf/types";
 
 export const transcribeMiddleware: MiddlewareFn<Context> = async (
   ctx,
@@ -25,6 +25,7 @@ export const transcribeMiddleware: MiddlewareFn<Context> = async (
   async function replyWithTranscription(
     initialMessage: string,
     fileId: string,
+    type?: "voice" | "video_note",
   ) {
     const reply = await ctx.reply(initialMessage, {
       reply_parameters: { message_id: ctx.message!.message_id },
@@ -33,12 +34,21 @@ export const transcribeMiddleware: MiddlewareFn<Context> = async (
     const url = await ctx.telegram.getFileLink(fileId);
     const result = await transcriber(url.href);
 
-    ctx.telegram.editMessageText(
+    const draftMessage = await ctx.telegram.editMessageText(
       reply.chat.id,
       reply.message_id,
       undefined,
       result.transcription,
     );
+
+    const transcribedFrom = type === "voice" ? "voice message" : "video note";
+
+    if (typeof draftMessage !== "boolean") {
+      await ctx.systems.history.storeMessage({
+        ...(ctx.message as Message.VoiceMessage),
+        text: `Transcribed from ${transcribedFrom}:\n${result.transcription}`,
+      });
+    }
 
     const refined = await refiner(result.transcription);
 
@@ -60,6 +70,7 @@ export const transcribeMiddleware: MiddlewareFn<Context> = async (
         length: transcriptionHeader.length,
       },
     ];
+
     const summaryHeaderEntities: Array<MessageEntity> =
       summaryIndex !== -1
         ? [
@@ -76,7 +87,7 @@ export const transcribeMiddleware: MiddlewareFn<Context> = async (
           ]
         : [];
 
-    ctx.telegram.editMessageText(
+    await ctx.telegram.editMessageText(
       reply.chat.id,
       reply.message_id,
       undefined,

@@ -17,6 +17,4 @@ export async function resetScene(this: Context) {
     .returning();
 
   this.systems.scene.data = result;
-
-  console.log("resetScene", this.systems.scene.data);
 }

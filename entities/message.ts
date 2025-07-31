@@ -9,6 +9,8 @@ import {
 import { commonColumns } from "./_common";
 import { relations } from "drizzle-orm";
 import { chatsTable } from "./chat";
+import type { Message, Update } from "telegraf/types";
+import type { Context } from "telegraf";
 
 export const messagesTable = pgTable("messages", {
   ...commonColumns,
@@ -20,7 +22,13 @@ export const messagesTable = pgTable("messages", {
   originalUpdatedAt: timestamp({
     mode: "date",
   }),
-  data: jsonb().notNull(),
+  data: jsonb()
+    .notNull()
+    .$type<
+      (Message.TextMessage | Exclude<Context["editedMessage"], undefined>) & {
+        text: string;
+      }
+    >(),
 });
 
 export const messagesRelations = relations(messagesTable, ({ one }) => ({

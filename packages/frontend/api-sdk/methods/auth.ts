@@ -5,7 +5,7 @@ export async function authMiniAPP(this: API, initData: string) {
     initData,
   }).then((r) => r.data);
 
-  this._auth = data.token;
+  this._token = data.token;
 
   return data;
 }

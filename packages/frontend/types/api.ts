@@ -1,6 +1,6 @@
-export type WithMeta<D = unknown, M = {}> = {
+export type WithMeta<D = unknown, M = any | undefined> = {
   data: D;
-  meta?: M;
+  meta: M;
 };
 
 export type WithPagination<D extends { id: string } = { id: string }> =

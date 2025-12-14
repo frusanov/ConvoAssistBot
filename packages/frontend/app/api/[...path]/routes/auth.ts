@@ -1,8 +1,7 @@
 import { Hono } from "hono";
 import { validate, parse } from "@tma.js/init-data-node";
-import * as jose from "jose";
 import { findOrCreateUser } from "@/db/queries/users";
-import { jwtSecret } from "../middleware/jwt-auth-middleware";
+import { encodeJWT } from "../middleware/jwt-auth-middleware";
 
 export const auth = new Hono();
 
@@ -29,11 +28,9 @@ auth.post("/mini-app", async (c) => {
 
     const user = await findOrCreateUser(parsed.user);
 
-    const token = await new jose.EncryptJWT({
+    const token = await encodeJWT({
       userId: user.id,
-    })
-      .setProtectedHeader({ alg: "dir", enc: "A128CBC-HS256" })
-      .encrypt(jwtSecret);
+    });
 
     return c.json({
       token,

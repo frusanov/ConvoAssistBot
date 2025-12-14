@@ -5,8 +5,6 @@ import * as chats from "./methods/chats";
 export class API {
   _axios: AxiosInstance;
 
-  _auth: string | null = null;
-
   get: AxiosInstance["get"];
   post: AxiosInstance["post"];
   put: AxiosInstance["put"];
@@ -21,15 +19,17 @@ export class API {
       adapter: "fetch",
     });
 
-    this._axios.interceptors.request.use((config) => {
-      return {
-        ...config,
-        headers: {
-          ...config.headers,
-          Authorization: this._token ? `Bearer ${this._token}` : undefined,
-        },
-      } as InternalAxiosRequestConfig<any>;
-    });
+    this._axios.interceptors.request.use(
+      function (this: API, config: InternalAxiosRequestConfig<any>) {
+        return {
+          ...config,
+          headers: {
+            ...config.headers,
+            Authorization: this._token ? `Bearer ${this._token}` : undefined,
+          },
+        } as InternalAxiosRequestConfig<any>;
+      }.bind(this),
+    );
 
     this.get = this._axios.get.bind(this._axios);
     this.post = this._axios.post.bind(this._axios);
@@ -41,6 +41,7 @@ export class API {
   authMiniAPP = auth.authMiniAPP.bind(this);
 
   listChats = chats.listChats.bind(this);
+  getChat = chats.getChat.bind(this);
 }
 
 export const api = new API();

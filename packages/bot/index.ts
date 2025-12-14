@@ -29,12 +29,12 @@ bot.use(ignoreOldMessagesMiddleware);
 bot.use(responseTimeMiddleware);
 bot.use(idGuardMiddleware);
 bot.use(callbackQueryMiddleware);
-bot.use(chatMiddleware);
+// bot.use(chatMiddleware);
 bot.use(commandMiddleware);
 bot.use(historyMiddleware);
 bot.use(sceneMiddleware);
 bot.use(...settingsMiddlewares);
-bot.use(summaryMiddleware);
+// bot.use(summaryMiddleware);
 bot.use(transcribeMiddleware);
 
 bot.launch();

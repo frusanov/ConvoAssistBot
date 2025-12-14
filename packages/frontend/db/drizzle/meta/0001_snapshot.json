@@ -1,6 +1,6 @@
 {
-  "id": "235b042f-143a-4ae7-b690-7a97b76b1468",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "f4a73b7b-ffc6-4cbd-bcf5-ea89d086a743",
+  "prevId": "235b042f-143a-4ae7-b690-7a97b76b1468",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -132,6 +132,13 @@
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
+        },
+        "role": {
+          "name": "role",
+          "type": "chat_user_role",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
         }
       },
       "indexes": {},
@@ -164,7 +171,16 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "chat_user_unique": {
+          "name": "chat_user_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "chat_id",
+            "user_id"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -508,6 +524,15 @@
       "values": [
         "group",
         "private"
+      ]
+    },
+    "public.chat_user_role": {
+      "name": "chat_user_role",
+      "schema": "public",
+      "values": [
+        "member",
+        "administrator",
+        "creator"
       ]
     }
   },

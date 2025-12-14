@@ -1,13 +1,10 @@
 "use client";
 
 import { api } from "@/api-sdk";
-import { Button } from "@/components/ui/button";
-import { useFetch } from "@/lib/use-fetch";
-import { useEffect, useState } from "hono/jsx";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 
 export default function Home() {
-  const { fetch } = useFetch();
-
   const [chats, setChats] = useState<Array<any> | null>(null);
 
   useEffect(() => {
@@ -16,20 +13,21 @@ export default function Home() {
     });
   }, []);
 
-  // const onClick = () => {
-  //   fetch("/api/chats", {
-  //     method: "GET",
-  //   })
-  //     .then((r) => r.json())
-  //     .then((data) => {
-  //       alert(data?.message);
-  //     });
-  // };
-
   return (
     <div>
-      {/*<Button onClick={onClick}>Click me</Button>*/}
-      {chats?.map?.((chat) => <>{chat.id}</>)}
+      {chats?.map?.((chat) => (
+        <div key={chat.id}>
+          <Link
+            className="p-4 flex align-middle gap-2 cursor-pointer hover:bg-blue-50"
+            href={`/chats/${chat.id}`}
+          >
+            <div>{chat.title || chat.id}</div>
+            <div className="text-xs rounded-4xl border px-2 py-1 border-blue-200">
+              {chat.type}
+            </div>
+          </Link>
+        </div>
+      ))}
     </div>
   );
 }

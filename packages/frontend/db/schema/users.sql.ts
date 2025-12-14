@@ -4,7 +4,7 @@ import { userBalanceTable } from "./balance.sql";
 
 export const usersTable = pgTable("users", {
   ...essentialsWithTgId(),
-  balanceId: uuid()
+  balanceId: uuid("balance_id")
     .notNull()
     .references(() => userBalanceTable.id, { onDelete: "cascade" }),
 });

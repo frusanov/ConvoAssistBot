@@ -1,14 +1,14 @@
+import { loadEnvConfig } from "@next/env";
 import { defineConfig } from "drizzle-kit";
 
-const dbPath = process.env.NODE_ENV == "production" ? "db" : "tmp/db";
+loadEnvConfig(__dirname);
 
 export default defineConfig({
+  out: "./db/drizzle",
+  schema: "./db/schema/**/*.sql.ts",
   dialect: "postgresql",
-  schema: "./entities",
-  out: "./drizzle",
-
   driver: "pglite",
   dbCredentials: {
-    url: `./${dbPath}`,
+    url: process.env.DATABASE_URL! || "./tmp/db",
   },
 });

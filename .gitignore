@@ -116,6 +116,7 @@ web_modules/
 
 .next
 out
+tmp
 
 # Nuxt.js build / generate output
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { api } from "@/api-sdk";
 import { Input } from "@/components/ui/input";
 import {

@@ -9,7 +9,7 @@ export async function updateChatMeta(tgChat: Chat) {
   const [chat] = await db
     .update(chatsTable)
     .set({
-      title: getChatTitle(tgChat as any),
+      title: getChatTitle(tgChat),
     })
     .where(eq(chatsTable.tgId, tgChat.id))
     .returning();

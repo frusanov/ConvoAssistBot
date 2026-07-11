@@ -41,7 +41,7 @@ export class API {
       adapter: "fetch",
     });
 
-    this._axios.interceptors.request.use((config: InternalAxiosRequestConfig<any>) => {
+    this._axios.interceptors.request.use((config: InternalAxiosRequestConfig) => {
       if (this._token) {
         config.headers.Authorization = `Bearer ${this._token}`;
       }

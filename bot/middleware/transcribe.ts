@@ -1,4 +1,5 @@
 import type { Context, MiddlewareFn } from "telegraf";
+import type { Message } from "telegraf/types";
 import { message } from "telegraf/filters";
 import { transcriber } from "../lib/transcriber";
 import { refiner } from "../lib/refiner";
@@ -19,7 +20,7 @@ export const transcribeMiddleware: MiddlewareFn<Context> = async (
   const type = isVoice ? "voice" : "video_note";
 
   const reply = await ctx.reply(
-    `Transcribing ${type === "voice" ? "voice message" : "video note"}...`,
+    "Transcribing " + (type === "voice" ? "voice message" : "video note") + "...",
     { reply_parameters: { message_id: ctx.message.message_id } },
   );
 
@@ -36,10 +37,11 @@ export const transcribeMiddleware: MiddlewareFn<Context> = async (
   // Store in history if summarize is enabled
   const chatSettings = ctx.chatData.settings as { summarize?: boolean };
   if (chatSettings.summarize && typeof draftMessage !== "boolean") {
+    const label = type === "voice" ? "voice message" : "video note";
     const fakeTextMessage = {
       ...ctx.message,
-      text: `Transcribed from ${type === "voice" ? "voice message" : "video note"}:\n${result.transcription}`,
-    } as any;
+      text: "Transcribed from " + label + ":\n" + result.transcription,
+    } as unknown as Message.TextMessage;
 
     await messageQueries.storeMessage({
       tgMessage: fakeTextMessage,

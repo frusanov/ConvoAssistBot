@@ -5,7 +5,11 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 export default function Home() {
-  const [chats, setChats] = useState<Array<any> | null>(null);
+  const [chats, setChats] = useState<Array<{
+    id: string;
+    title: string | null;
+    type: string;
+  }> | null>(null);
 
   useEffect(() => {
     api.listChats().then(({ data }) => {

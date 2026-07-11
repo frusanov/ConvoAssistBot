@@ -1,4 +1,3 @@
-import type { User } from "telegraf/types";
 import type { API } from "..";
 
 export async function authMiniAPP(this: API, initData: string) {
@@ -10,7 +9,15 @@ export async function authMiniAPP(this: API, initData: string) {
   return data;
 }
 
-export async function oauth(this: API, user: any) {
+export async function oauth(this: API, user: {
+  id: number;
+  first_name: string;
+  last_name?: string;
+  username?: string;
+  photo_url?: string;
+  auth_date: number;
+  hash: string;
+}) {
   const data = await this.post<{ token: string }>("/auth/oauth", {
     user,
   }).then((r) => r.data);

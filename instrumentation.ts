@@ -3,7 +3,6 @@ import { db } from "./db";
 import { bot, setupBot } from "./bot";
 
 export async function register() {
-  console.log("\nregister\n");
   if (process.env.NEXT_RUNTIME === "nodejs") {
     // Run DB migrations before starting the bot
     await migrate(db, { migrationsFolder: "./db/drizzle" });
@@ -11,17 +10,17 @@ export async function register() {
     // Register commands and error handler
     await setupBot();
 
-    if (bot.botInfo) return;
+    // Pre-fetch bot info so we can log the username before launching.
+    bot.botInfo ??= await bot.telegram.getMe();
+    const botUsername = bot.botInfo?.username ?? "?";
 
-    try {
-      await bot.launch();
-      const username = bot.botInfo?.username ?? "?";
-      console.log(`Bot started: @${username}`);
-    } catch (err: any) {
-      console.error(
-        "Bot failed to start — check BOT_TOKEN in .env:",
-        err?.message || err,
-      );
-    }
+    // bot.launch() with long polling starts an infinite polling loop
+    // that never resolves — do NOT await it, fire and forget.
+    // Errors during polling are caught by the .catch() handler.
+    bot.launch().catch((err: Error) => {
+      console.error("Bot polling error:", err?.message || err);
+    });
+
+    console.log(`Bot started: @${botUsername}`);
   }
 }

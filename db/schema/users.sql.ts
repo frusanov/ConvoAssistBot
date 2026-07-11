@@ -1,4 +1,4 @@
-import { boolean, jsonb, pgTable, text } from "drizzle-orm/pg-core";
+import { jsonb, pgTable, text } from "drizzle-orm/pg-core";
 import { essentialsWithTgId } from "./_common";
 
 export interface UserPrivacySettings {

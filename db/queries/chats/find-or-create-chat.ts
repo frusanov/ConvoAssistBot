@@ -15,7 +15,7 @@ export async function findOrCreateChat(tgChat: Chat) {
       .insert(chatsTable)
       .values({
         tgId: tgChat.id,
-        title: getChatTitle(tgChat as any),
+        title: getChatTitle(tgChat),
         type:
           tgChat.type === "group" || tgChat.type === "supergroup"
             ? "group"

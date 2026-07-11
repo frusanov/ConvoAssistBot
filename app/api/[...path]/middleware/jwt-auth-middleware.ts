@@ -1,6 +1,5 @@
 import { MiddlewareHandler } from "hono";
-import { decode, sign, verify } from "hono/jwt";
-import * as jose from "jose";
+import { sign, verify } from "hono/jwt";
 
 declare module "hono" {
   interface Context {

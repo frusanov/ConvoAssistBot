@@ -48,7 +48,14 @@ bot.command("privacy", async (ctx) => {
 
 // New member notification
 bot.on("chat_member", async (ctx) => {
-  const update = ctx.update as any;
+  const update = ctx.update as {
+    chat_member?: {
+      new_chat_member?: {
+        user?: { id: number; is_bot?: boolean; first_name?: string };
+        status?: string;
+      };
+    };
+  };
   const newMember = update.chat_member?.new_chat_member?.user;
   const status = update.chat_member?.new_chat_member?.status;
 

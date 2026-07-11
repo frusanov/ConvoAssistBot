@@ -1,4 +1,4 @@
-import { bigint, date, uuid, timestamp } from "drizzle-orm/pg-core";
+import { bigint, uuid, timestamp } from "drizzle-orm/pg-core";
 
 export const essentials = () => ({
   id: uuid().defaultRandom().primaryKey().notNull(),

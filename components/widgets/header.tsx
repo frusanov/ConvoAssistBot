@@ -1,7 +1,7 @@
 "use client";
 
 import { FC } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Avatar, AvatarImage } from "../ui/avatar";
 import { useAuth } from "../providers/auth";
 
 export const Header: FC = () => {

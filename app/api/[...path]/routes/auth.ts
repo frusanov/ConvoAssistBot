@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { validate, parse } from "@tma.js/init-data-node";
 import { userQueries } from "@/db/queries";
 import { encodeJWT } from "../middleware/jwt-auth-middleware";
-import { User } from "telegraf/types";
+import type { User } from "telegraf/types";
 import crypto from "crypto";
 
 export const auth = new Hono();
@@ -28,7 +28,7 @@ auth.post("/mini-app", async (c) => {
 
     validate(initData, process.env.BOT_TOKEN);
 
-    const user = await userQueries.findOrCreateUser(parsed.user as any);
+    const user = await userQueries.findOrCreateUser(parsed.user as unknown as User);
 
     const token = await encodeJWT({
       userId: user.id,
@@ -46,7 +46,7 @@ auth.post("/mini-app", async (c) => {
 });
 
 // Helper function to verify Telegram OAuth data
-function verifyTelegramAuth(data: any): boolean {
+function verifyTelegramAuth(data: Record<string, string>): boolean {
   if (!process.env.BOT_TOKEN) {
     throw new Error("Missing bot token");
   }

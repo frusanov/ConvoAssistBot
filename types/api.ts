@@ -1,4 +1,4 @@
-export type WithMeta<D = unknown, M = any | undefined> = {
+export type WithMeta<D = unknown, M = unknown> = {
   data: D;
   meta: M;
 };

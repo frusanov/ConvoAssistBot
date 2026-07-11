@@ -9,6 +9,8 @@ export const transcribeMiddleware: MiddlewareFn<Context> = async (
   ctx,
   next,
 ) => {
+  if (!ctx.userData || !ctx.chatData) return next();
+
   const isVoice = ctx.has(message("voice"));
   const isVideoNote = ctx.has(message("video_note"));
 

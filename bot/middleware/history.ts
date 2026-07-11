@@ -7,6 +7,8 @@ import { and, eq } from "drizzle-orm";
 import type { UserPrivacySettings } from "@/db/schema/users.sql";
 
 export const historyMiddleware: MiddlewareFn<Context> = async (ctx, next) => {
+  if (!ctx.userData || !ctx.chatData) return next();
+
   const chat = ctx.chatData;
   const user = ctx.userData;
   const chatSettings = chat.settings as {

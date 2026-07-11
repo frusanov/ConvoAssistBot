@@ -7,8 +7,9 @@ export default defineConfig({
   out: "./db/drizzle",
   schema: "./db/schema/**/*.sql.ts",
   dialect: "postgresql",
-  driver: "pglite",
   dbCredentials: {
-    url: process.env.DATABASE_URL! || "./tmp/db",
+    url:
+      process.env.DATABASE_URL ||
+      "postgresql://convoassist:convoassist@localhost:5432/convoassist",
   },
 });

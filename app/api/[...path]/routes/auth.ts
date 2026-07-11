@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { validate, parse } from "@tma.js/init-data-node";
+import { validate } from "@tma.js/init-data-node";
 import { userQueries } from "@/db/queries";
 import { encodeJWT } from "../middleware/jwt-auth-middleware";
 import type { User } from "telegraf/types";
@@ -8,40 +8,37 @@ import crypto from "crypto";
 export const auth = new Hono();
 
 auth.post("/mini-app", async (c) => {
-  const { initData } = await c.req.json();
-
-  const parsed = parse(initData);
-
-  if (!initData || !parsed.user) {
-    return c.json(
-      {},
-      {
-        status: 422,
-      },
-    );
-  }
-
   try {
+    const { initData } = await c.req.json();
+
     if (!initData || !process.env.BOT_TOKEN) {
-      throw new Error("Missing bot token or initData");
+      return c.json({}, { status: 422 });
     }
 
+    // Cryptographic validation — throws if initData is tampered
     validate(initData, process.env.BOT_TOKEN);
 
-    const user = await userQueries.findOrCreateUser(parsed.user as unknown as User);
+    // Parse the user field from initData manually (URLSearchParams).
+    // We cannot use @tma.js/init-data-node's parse() because v2 requires a
+    // "signature" field that does not exist in standard Telegram init data.
+    const params = new URLSearchParams(initData);
+    const userJson = params.get("user");
+    if (!userJson) {
+      return c.json({}, { status: 422 });
+    }
+
+    const parsedUser: User = JSON.parse(userJson);
+
+    const user = await userQueries.findOrCreateUser(parsedUser);
 
     const token = await encodeJWT({
       userId: user.id,
     });
 
-    return c.json({
-      token,
-    });
+    return c.json({ token });
   } catch (e) {
-    console.warn(e);
-    return c.text("401: Unauthorized", {
-      status: 401,
-    });
+    console.warn("Mini App auth failed:", e);
+    return c.text("401: Unauthorized", { status: 401 });
   }
 });
 

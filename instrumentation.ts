@@ -1,9 +1,11 @@
-import { migrate } from "drizzle-orm/pglite/migrator";
-import { db } from "./db";
-import { bot, setupBot } from "./bot";
-
 export async function register() {
   if (process.env.NEXT_RUNTIME === "nodejs") {
+    // Dynamic imports keep Node.js-only modules (node:fs, PGlite, Telegraf)
+    // out of the Edge Runtime's static analysis.
+    const { migrate } = await import("drizzle-orm/pglite/migrator");
+    const { db } = await import("./db");
+    const { bot, setupBot } = await import("./bot");
+
     // Run DB migrations before starting the bot
     await migrate(db, { migrationsFolder: "./db/drizzle" });
 

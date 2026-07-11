@@ -15,10 +15,16 @@ export const contextCollectorMiddleware: MiddlewareFn<Context> = async (
   ctx,
   next,
 ) => {
-  const tgUser = ctx.message?.from || ctx.callbackQuery?.from;
+  const tgUser = ctx.from;
   const tgChat = ctx.chat;
 
-  if (!tgUser) throw new Error("User not provided");
+  if (!tgUser) {
+    // Updates without user context (e.g., channel posts, boosts, message reactions)
+    // are not relevant for this bot — skip context collection gracefully
+    console.warn(`Skipping context collection for ${ctx.updateType} (no user)`);
+    ctx.systems = { command: null };
+    return next();
+  }
   if (!tgChat) throw new Error("Chat not provided");
 
   const [user, chat] = await Promise.all([

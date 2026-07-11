@@ -4,6 +4,7 @@ import { openai } from "../lib/openai";
 
 export const summaryMiddleware: MiddlewareFn<Context> = async (ctx, next) => {
   if (ctx.systems.command?.name !== "summary") return await next();
+  if (!ctx.chatData) return next();
 
   const chatSettings = ctx.chatData.settings as { summarize?: boolean };
   if (!chatSettings.summarize) {

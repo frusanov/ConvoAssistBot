@@ -1,5 +1,9 @@
-import { PGlite } from "@electric-sql/pglite";
-import { drizzle } from "drizzle-orm/pglite";
+import { drizzle } from "drizzle-orm/node-postgres";
+import { Pool } from "pg";
 
-const client = new PGlite(process.env.DATABASE_URL || "./tmp/db");
-export const db = drizzle({ client });
+const connectionString =
+  process.env.DATABASE_URL ||
+  "postgresql://convoassist:convoassist@localhost:5432/convoassist";
+
+const pool = new Pool({ connectionString });
+export const db = drizzle({ client: pool });

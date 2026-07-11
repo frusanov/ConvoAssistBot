@@ -3,7 +3,7 @@ import {
   chatToUserJunctionTable,
   chatUserRoleEnum,
 } from "@/db/schema/chats.sql";
-import { InferEnum } from "drizzle-orm";
+import type { InferEnum } from "drizzle-orm";
 
 export async function createOrUpdateChatUser(
   chatUUID: string,

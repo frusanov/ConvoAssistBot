@@ -1,3 +1,2 @@
-export * from "./balance";
-export * from "./chats";
-export * from "./users";
+export { userQueries } from "./users";
+export { chatQueries } from "./chats";

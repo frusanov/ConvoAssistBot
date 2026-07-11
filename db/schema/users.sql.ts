@@ -1,10 +1,17 @@
-import { pgTable, uuid } from "drizzle-orm/pg-core";
+import { boolean, jsonb, pgTable, text } from "drizzle-orm/pg-core";
 import { essentialsWithTgId } from "./_common";
-import { userBalanceTable } from "./balance.sql";
+
+export interface UserPrivacySettings {
+  globallyOptedOut: boolean;
+}
 
 export const usersTable = pgTable("users", {
   ...essentialsWithTgId(),
-  balanceId: uuid("balance_id")
+  firstName: text("first_name"),
+  lastName: text("last_name"),
+  username: text(),
+  privacySettings: jsonb()
+    .default({ globallyOptedOut: false } satisfies UserPrivacySettings)
     .notNull()
-    .references(() => userBalanceTable.id, { onDelete: "cascade" }),
+    .$type<UserPrivacySettings>(),
 });

@@ -1,103 +1,9 @@
 {
-  "id": "235b042f-143a-4ae7-b690-7a97b76b1468",
+  "id": "bc7ac337-0f29-4cb3-af00-aaa90530451e",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public.chat_balance": {
-      "name": "chat_balance",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "points": {
-          "name": "points",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "tariff": {
-          "name": "tariff",
-          "type": "tariff",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'default'"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.user_balance": {
-      "name": "user_balance",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "points": {
-          "name": "points",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "tariff": {
-          "name": "tariff",
-          "type": "tariff",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'default'"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
     "public.chat_to_user": {
       "name": "chat_to_user",
       "schema": "",
@@ -111,13 +17,13 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "date",
+          "type": "timestamp",
           "primaryKey": false,
           "notNull": true
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "date",
+          "type": "timestamp",
           "primaryKey": false,
           "notNull": true
         },
@@ -132,6 +38,20 @@
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
+        },
+        "role": {
+          "name": "role",
+          "type": "chat_user_role",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "opted_out": {
+          "name": "opted_out",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
         }
       },
       "indexes": {},
@@ -164,7 +84,16 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "chat_user_unique": {
+          "name": "chat_user_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "chat_id",
+            "user_id"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -182,13 +111,13 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "date",
+          "type": "timestamp",
           "primaryKey": false,
           "notNull": true
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "date",
+          "type": "timestamp",
           "primaryKey": false,
           "notNull": true
         },
@@ -197,6 +126,12 @@
           "type": "bigint",
           "primaryKey": false,
           "notNull": true
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
         },
         "type": {
           "name": "type",
@@ -211,30 +146,10 @@
           "primaryKey": false,
           "notNull": true,
           "default": "'{\"transcribe\":false,\"summarize\":false,\"storeMessages\":{\"amount\":1000,\"time\":604800}}'::jsonb"
-        },
-        "balance_id": {
-          "name": "balance_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
         }
       },
       "indexes": {},
-      "foreignKeys": {
-        "chats_balance_id_chat_balance_id_fk": {
-          "name": "chats_balance_id_chat_balance_id_fk",
-          "tableFrom": "chats",
-          "tableTo": "chat_balance",
-          "columnsFrom": [
-            "balance_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
+      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "chats_tg_id_unique": {
@@ -245,77 +160,6 @@
           ]
         }
       },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.message_to_chat": {
-      "name": "message_to_chat",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "message_id": {
-          "name": "message_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "chat_id": {
-          "name": "chat_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "message_to_chat_message_id_messages_id_fk": {
-          "name": "message_to_chat_message_id_messages_id_fk",
-          "tableFrom": "message_to_chat",
-          "tableTo": "messages",
-          "columnsFrom": [
-            "message_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "message_to_chat_chat_id_chats_id_fk": {
-          "name": "message_to_chat_chat_id_chats_id_fk",
-          "tableFrom": "message_to_chat",
-          "tableTo": "chats",
-          "columnsFrom": [
-            "chat_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -333,13 +177,13 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "date",
+          "type": "timestamp",
           "primaryKey": false,
           "notNull": true
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "date",
+          "type": "timestamp",
           "primaryKey": false,
           "notNull": true
         },
@@ -353,14 +197,7 @@
           "name": "text",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
-        },
-        "is_forwarded": {
-          "name": "is_forwarded",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
+          "notNull": false
         },
         "is_hidden_for_privacy": {
           "name": "is_hidden_for_privacy",
@@ -379,7 +216,25 @@
           "name": "user_id",
           "type": "uuid",
           "primaryKey": false,
+          "notNull": true
+        },
+        "chat_tg_id": {
+          "name": "chat_tg_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "user_tg_id": {
+          "name": "user_tg_id",
+          "type": "bigint",
+          "primaryKey": false,
           "notNull": false
+        },
+        "original_created_at": {
+          "name": "original_created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
         }
       },
       "indexes": {},
@@ -394,7 +249,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         },
         "messages_user_id_users_id_fk": {
@@ -407,7 +262,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
@@ -438,13 +293,13 @@
         },
         "created_at": {
           "name": "created_at",
-          "type": "date",
+          "type": "timestamp",
           "primaryKey": false,
           "notNull": true
         },
         "updated_at": {
           "name": "updated_at",
-          "type": "date",
+          "type": "timestamp",
           "primaryKey": false,
           "notNull": true
         },
@@ -454,29 +309,34 @@
           "primaryKey": false,
           "notNull": true
         },
-        "balance_id": {
-          "name": "balance_id",
-          "type": "uuid",
+        "first_name": {
+          "name": "first_name",
+          "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
+        },
+        "last_name": {
+          "name": "last_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "username": {
+          "name": "username",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "privacySettings": {
+          "name": "privacySettings",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{\"globallyOptedOut\":false}'::jsonb"
         }
       },
       "indexes": {},
-      "foreignKeys": {
-        "users_balance_id_user_balance_id_fk": {
-          "name": "users_balance_id_user_balance_id_fk",
-          "tableFrom": "users",
-          "tableTo": "user_balance",
-          "columnsFrom": [
-            "balance_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
+      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "users_tg_id_unique": {
@@ -493,21 +353,21 @@
     }
   },
   "enums": {
-    "public.tariff": {
-      "name": "tariff",
-      "schema": "public",
-      "values": [
-        "default",
-        "free",
-        "minimal"
-      ]
-    },
     "public.type": {
       "name": "type",
       "schema": "public",
       "values": [
         "group",
         "private"
+      ]
+    },
+    "public.chat_user_role": {
+      "name": "chat_user_role",
+      "schema": "public",
+      "values": [
+        "member",
+        "administrator",
+        "creator"
       ]
     }
   },

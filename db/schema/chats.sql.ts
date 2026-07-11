@@ -1,15 +1,7 @@
-import {
-  jsonb,
-  pgEnum,
-  pgTable,
-  uuid,
-  unique,
-  text,
-} from "drizzle-orm/pg-core";
+import { boolean, jsonb, pgEnum, pgTable, text, unique, uuid } from "drizzle-orm/pg-core";
 import { essentials, essentialsWithTgId } from "./_common";
-import { chatBalanceTable } from "./balance.sql";
 import { usersTable } from "./users.sql";
-import { ChatSetings } from "@/types/chats";
+import type { ChatSetings } from "@/types/chats";
 
 export const chatTypeEnum = pgEnum("type", ["group", "private"]);
 
@@ -23,14 +15,11 @@ export const chatsTable = pgTable("chats", {
       summarize: false,
       storeMessages: {
         amount: 1000,
-        time: 3600 * 24 * 7,
+        time: 604800,
       },
     })
     .notNull()
     .$type<ChatSetings>(),
-  balanceId: uuid("balance_id")
-    .notNull()
-    .references(() => chatBalanceTable.id, { onDelete: "cascade" }),
 });
 
 export const chatUserRoleEnum = pgEnum("chat_user_role", [
@@ -50,6 +39,7 @@ export const chatToUserJunctionTable = pgTable(
       .notNull()
       .references(() => usersTable.id, { onDelete: "cascade" }),
     role: chatUserRoleEnum().notNull(),
+    optedOut: boolean("opted_out").notNull().default(false),
   },
   (table) => [unique("chat_user_unique").on(table.chatId, table.userId)],
 );

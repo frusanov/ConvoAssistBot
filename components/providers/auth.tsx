@@ -4,14 +4,20 @@ import type { WebAppInitData, WebAppUser } from "telegram-web-app";
 
 import {
   createContext,
-  FC,
-  PropsWithChildren,
+  type FC,
+  type PropsWithChildren,
   useContext,
   useEffect,
   useState,
 } from "react";
 import { api } from "@/api-sdk";
 import Script from "next/script";
+
+declare global {
+  interface Window {
+    onTelegramAuth?: (user: any) => void;
+  }
+}
 
 export interface AuthContextPayload {
   initData: string;
@@ -21,64 +27,88 @@ export interface AuthContextPayload {
 
 export const AuthContext = createContext<AuthContextPayload | null>(null);
 
-enum AuthStages {
-  Init,
-  CheckingExiting,
-  TryingMiniApp,
-  HasAuth,
-}
-
 export const AuthProvider: FC<PropsWithChildren> = ({ children }) => {
-  const [authStage, setAuthStage] = useState(AuthStages.Init);
-
   const [context, setContext] = useState<AuthContextPayload | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const [hasAuth, setHasAuth] = useState(false);
-
+  // Try Mini App auth on mount
   useEffect(() => {
-    const script = window.document.querySelector(
+    const script = document.querySelector(
       'script[src^="https://telegram.org/js/telegram-web-app.js"]',
     ) as HTMLScriptElement;
 
-    script?.addEventListener("load", () => {
-      if (window.Telegram.WebApp.initData === "") return;
+    const handleLoad = () => {
+      const initData = window.Telegram?.WebApp?.initData;
+      if (initData) {
+        setContext({
+          user: window.Telegram.WebApp.initDataUnsafe.user as WebAppUser,
+          initData,
+          initDataUnsafe: window.Telegram.WebApp.initDataUnsafe,
+        });
+      } else {
+        // Not in Mini App — show OAuth fallback
+        setIsLoading(false);
+      }
+    };
 
-      setContext({
-        user: window.Telegram.WebApp.initDataUnsafe.user as WebAppUser,
-        initData: window.Telegram.WebApp.initData,
-        initDataUnsafe: window.Telegram.WebApp.initDataUnsafe,
-      });
-    });
+    if (script) {
+      script.addEventListener("load", handleLoad);
+      // If script already loaded
+      if (script.getAttribute("src")?.includes("telegram-web-app.js")) {
+        handleLoad();
+      }
+    } else {
+      handleLoad();
+    }
+
+    return () => script?.removeEventListener("load", handleLoad);
   }, []);
 
+  // When Mini App context is ready, authenticate
   useEffect(() => {
-    if (!context) return;
+    if (!context?.initData) return;
 
-    api.authMiniAPP(context.initData).then(({ token }) => {
-      setToken(token);
-    });
-  }, [context]);
-
-  useEffect(() => {
-    window.onTelegramAuth = function onTelegramAuth(user) {
-      console.log({ user });
-
-      api.oauth(user).then(({ token }) => {
-        console.log({ token });
-        setContext({
-          user,
-        });
+    api
+      .authMiniAPP(context.initData)
+      .then(({ token }) => {
         setToken(token);
+        setIsLoading(false);
+      })
+      .catch(() => {
+        setIsLoading(false);
       });
+  }, [context?.initData]);
+
+  // OAuth fallback handler (Telegram Login Widget)
+  useEffect(() => {
+    window.onTelegramAuth = (user) => {
+      api
+        .oauth(user)
+        .then(({ token }) => {
+          setToken(token);
+          setContext({
+            user,
+            initData: "",
+            initDataUnsafe: {} as WebAppInitData,
+          });
+          setIsLoading(false);
+        })
+        .catch(() => {
+          setIsLoading(false);
+        });
     };
   }, []);
 
-  if (authStage === AuthStages.Init) {
-    return <>Trying to get auth</>;
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        Loading...
+      </div>
+    );
   }
 
-  if (!token)
+  if (!token) {
     return (
       <>
         <Script
@@ -90,10 +120,12 @@ export const AuthProvider: FC<PropsWithChildren> = ({ children }) => {
           data-onauth="onTelegramAuth(user)"
           data-request-access="write"
         />
-
-        <span>no auth</span>
+        <div className="flex items-center justify-center min-h-screen">
+          Sign in with Telegram
+        </div>
       </>
     );
+  }
 
   return (
     <AuthContext.Provider value={context}>{children}</AuthContext.Provider>

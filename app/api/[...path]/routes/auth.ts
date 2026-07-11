@@ -28,7 +28,7 @@ auth.post("/mini-app", async (c) => {
 
     validate(initData, process.env.BOT_TOKEN);
 
-    const user = await userQueries.findOrCreateUser(parsed.user);
+    const user = await userQueries.findOrCreateUser(parsed.user as any);
 
     const token = await encodeJWT({
       userId: user.id,

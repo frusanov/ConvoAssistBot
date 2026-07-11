@@ -5,6 +5,9 @@ declare module "telegraf" {
   interface Context {
     userData: Awaited<ReturnType<typeof userQueries.findOrCreateUser>>;
     chatData: Awaited<ReturnType<typeof chatQueries.findOrCreateChat>>;
+    systems: {
+      command: { name: string; args: string[] } | null;
+    };
   }
 }
 
@@ -12,7 +15,7 @@ export const contextCollectorMiddleware: MiddlewareFn<Context> = async (
   ctx,
   next,
 ) => {
-  const tgUser = ctx.message?.from;
+  const tgUser = ctx.message?.from || ctx.callbackQuery?.from;
   const tgChat = ctx.chat;
 
   if (!tgUser) throw new Error("User not provided");
@@ -25,6 +28,7 @@ export const contextCollectorMiddleware: MiddlewareFn<Context> = async (
 
   ctx.userData = user;
   ctx.chatData = chat;
+  ctx.systems = { command: null };
 
   return next();
 };

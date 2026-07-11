@@ -33,18 +33,28 @@ export default function ChatPage() {
   });
 
   const { register, formState, handleSubmit } = form;
-  const { isLoading } = formState;
+  const { isLoading, isSubmitting } = formState;
 
   const [debugData, setDebugData] = useState({});
+  const [submitStatus, setSubmitStatus] = useState<
+    "idle" | "saving" | "saved" | "error"
+  >("idle");
 
   const onSubmit = handleSubmit(
     async (values) => {
-      alert(JSON.stringify(values, null, 2));
-      console.log({ values });
-      setDebugData(values);
+      setSubmitStatus("saving");
+      try {
+        const result = await api.updateChatSettings(id, values);
+        setDebugData(result);
+        setSubmitStatus("saved");
+        setTimeout(() => setSubmitStatus("idle"), 2000);
+      } catch (e) {
+        console.error("Failed to save settings:", e);
+        setSubmitStatus("error");
+      }
     },
     (e) => {
-      throw e;
+      console.error("Form validation error:", e);
     },
   );
 
@@ -100,7 +110,15 @@ export default function ChatPage() {
               </ItemFooter>
             </Item>
 
-            <Button type="submit">Submit</Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {submitStatus === "saving"
+                ? "Saving…"
+                : submitStatus === "saved"
+                  ? "Saved!"
+                  : submitStatus === "error"
+                    ? "Error — try again"
+                    : "Save settings"}
+            </Button>
           </form>
         )}
         <pre>{JSON.stringify(debugData, null, 2)}</pre>

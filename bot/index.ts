@@ -17,6 +17,23 @@ bot.use(historyMiddleware);
 bot.use(transcribeMiddleware);
 bot.use(summaryMiddleware);
 
+export async function setupBot() {
+  // Register bot commands with Telegram so they appear in the command menu
+  try {
+    await bot.telegram.setMyCommands([
+      { command: "summary", description: "Summarize recent messages in this chat" },
+      { command: "privacy", description: "Privacy settings and opt-out" },
+    ]);
+  } catch (err) {
+    console.error("Failed to register bot commands:", err);
+  }
+
+  // Global error handler — prevents silent crashes
+  bot.catch((err) => {
+    console.error("Bot error:", err);
+  });
+}
+
 bot.start((ctx) => ctx.reply("well cum"));
 
 // /privacy command — link to Mini App

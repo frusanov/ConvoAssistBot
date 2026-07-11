@@ -18,11 +18,15 @@ export class API {
 
   storeToken(token: string) {
     this._token = token;
-    localStorage.setItem(TOKEN_STORAGE_KEY, token);
+    if (typeof window !== "undefined") {
+      localStorage.setItem(TOKEN_STORAGE_KEY, token);
+    }
   }
 
   restoreToken() {
-    this._token = localStorage.getItem(TOKEN_STORAGE_KEY);
+    if (typeof window !== "undefined") {
+      this._token = localStorage.getItem(TOKEN_STORAGE_KEY);
+    }
   }
 
   hasToken() {
